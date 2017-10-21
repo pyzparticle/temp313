@@ -1,0 +1,8 @@
+make.sh - compiles C code
+blocks - executable C binary
+test.sh - runs blocks a number of times, use './test.sh 10 > log' to collect data
+
+VERBOSE MODES: "#DEFINE VERBOSE" in matrix_cal.h
+3: stride + elapsed time
+0: print elapsed time only in csv mode
+
