@@ -19,14 +19,7 @@ void clear_matrix(int ** C)
 //-----------
 clock_t matrix_multiplication(int **C, int **A, int **B, int stride)
 {
-    int i = 0;
-    int j = 0;
-    int k = 0;
-    int l = 0;
-    int m = 0;
-    int n = 0;
-    int sum = 0;
-    int tempi, tempj;
+    int i,j,k,l,m,n,sum;
 
     clock_t CPU_start_time = clock();
 
@@ -61,15 +54,6 @@ clock_t matrix_multiplication(int **C, int **A, int **B, int stride)
         printf("(Stride = %5d) CPU run time is: %10lu \n\n", stride, CPU_end_time - CPU_start_time);
     }
 
-    if(VERBOSE == 4) {
-        for(tempj = 0; tempj < COL; tempj++){
-	    for(tempi = 0; tempi < ROW; tempi++){
-                printf("%d ", C[tempi][tempj]);
-            }
-	    printf("\n");
-        }
-    }
-
     if(VERBOSE == 1) {
         print_matrix(C, ROW, COL, "C");
     }
@@ -89,9 +73,6 @@ void initial_matrix(int **A, int row, int col, char* name){
            //A[i][j] = (rand() & 0xFF) + 1;
 	   A[i][j] = (rand() & 0xF) + 1 ; 
         }
-    }
-    if(VERBOSE == 4) {
-        print_matrix(A, row, col, name);
     }
 } 
 
@@ -158,30 +139,16 @@ clock_t matrix_transpose_multi(int **C, int **A, int **B, int stride)
         printf("matrix[%d][%d] = %d (To make sure the result is the same with different stride)\n\n", ROW, COL, C[ROW-1][COL-1]);
     }
 
-    if(VERBOSE == 1) {
+    if(VERBOSE == 4) {
         print_matrix(C, ROW, COL, "C");
     }
     
     return CPU_end_time - CPU_start_time;
 }
 
-static int str(int stride, int length, int current)
-{
-    if((current + stride) <= length - 1){
-        return stride;
-    }else{
-        if(!((current + stride - length - 1) % stride)){
-            return 0;
-	}else{
-            return stride - (current + stride - length);
-        }
-    }
-}
-
 clock_t matrix_mult_uneven(int **C, int **A, int **B, int stride)
 {
     int i,j,k,l,m,n,sum;
-    int tempi, tempj;
 
     clock_t CPU_start_time = clock();
 
@@ -189,14 +156,14 @@ clock_t matrix_mult_uneven(int **C, int **A, int **B, int stride)
         printf("(Stride = %d) CPU start time is: %lu \n", stride, CPU_start_time);
     }
     
-    for(i = 0; i < ROW; i = i + str(stride, ROW, i)) {
-        for(j = 0; j < COL; j = j + str(stride, COL, j)) {
-            for(k = 0; k < COL; k = k + str(stride, COL, k)) {
+    for(i = 0; i < ROW; i = i + stride) {
+        for(j = 0; j < COL; j = j + stride) {
+            for(k = 0; k < COL; k = k + stride) {
                 // calculation for one tile
-            	for(l = i; l < i + str(stride, ROW, i); l++){
-                    for(m = j; m < j + str(stride, COL, j); m++) {
+            	for(l = i; l < i + (((i+stride)<ROW)?stride:(ROW-i)); l++){
+                    for(m = j; m < j + (((j+stride)<COL)?stride:(COL-j)); m++) {
                         sum = 0; 
-                        for(n = k; n < k + str(stride, COL, k); n++) {
+                        for(n = k; n < k + (((k+stride)<COL)?stride:(COL-k)); n++) {
                             sum = sum + A[l][n] * B[n][m];
                         }
                         C[l][m] += sum;
@@ -217,15 +184,6 @@ clock_t matrix_mult_uneven(int **C, int **A, int **B, int stride)
     }
 
     if(VERBOSE == 4) {
-        for(tempj = 0; tempj < COL; tempj++){
-	    for(tempi = 0; tempi < ROW; tempi++){
-                printf("%d ", C[tempi][tempj]);
-            }
-	    printf("\n");
-        }
-    }
-
-    if(VERBOSE == 1) {
         print_matrix(C, ROW, COL, "C");
     }
     

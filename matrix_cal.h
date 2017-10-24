@@ -3,11 +3,11 @@
 #include <time.h>
 #include <math.h>
 
-#define ROW 1024 
-#define COL 1024 
+#define ROW 1024
+#define COL 1024
 
 #define MIN_TILE 16 
-#define MAX_TILE 1024 
+#define MAX_TILE 1024
 
 #define FLUSH_AMT ROW*COL 
 

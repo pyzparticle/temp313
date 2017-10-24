@@ -17,7 +17,7 @@ int main()
     // Allocate memory for A 1024x1024
     size = ROW * sizeof(int *) + ROW * COL * sizeof(int);
     int **A =  malloc(size);
-    printf("Allocate memory for A 1024*1024 (size = %d Byte). \n", size);
+    //printf("Allocate memory for A 1024*1024 (size = %d Byte). \n", size);
     int *offsA = &A[ROW];
     for(i = 0; i < ROW; i++, offsA+= COL){
         A[i] = offsA;
@@ -26,7 +26,7 @@ int main()
     // Allocate memory for B 1024 x (1024+3))
     size = ROW * sizeof(int *) + ROW * (COL+3) * sizeof(int);
     int **B =  malloc(size);
-    printf("Allocate memory for B 1024*1027 (size = %d Byte). \n", size);
+    //printf("Allocate memory for B 1024*1027 (size = %d Byte). \n", size);
     int *offsB = &B[ROW];
     for(i = 0; i < ROW; i++, offsB+= (COL+3)){
         B[i] = offsB;
@@ -35,7 +35,7 @@ int main()
     // Allocate memory for C 1024x(1204+5)
     size = ROW * sizeof(int *) + ROW * (COL+5) * sizeof(int);
     int **C =  malloc(ROW * sizeof(int *) + ROW * (COL+5) * sizeof(int));
-    printf("Allocate memory for C 1024*1029 (size = %d Byte). \n\n", size);
+    //printf("Allocate memory for C 1024*1029 (size = %d Byte). \n\n", size);
     int *offsC = &C[ROW];
     for(i = 0; i < ROW; i++, offsC+= (COL+5)){
         C[i] = offsC;
@@ -44,9 +44,10 @@ int main()
     // A, B assign random value
     initial_matrix(A, ROW, COL, "A");
     initial_matrix(B, ROW, COL, "B");
-    
+
     low = 0xFFFFFFFF;
     best = 0;
+    printf("square: ");
     for (t_size = MIN_TILE; t_size <= MAX_TILE; t_size = t_size << 1) {
         clear_matrix(C);
         flush(FLUSH_AMT);
@@ -58,11 +59,11 @@ int main()
         if (VERBOSE == 0)
             printf("%lu,", result);
     }
-    printf("\n");
-    printf("best: %d %lu\n", best, low);
+    printf("best:%d-%lu\n", best, low);
 
-//    for (t_size = best - 4; t_size <= best+4; t_size++ ) {
-      for (t_size = 4; t_size < 16; t_size++){
+    low = 0xFFFFFFFF;
+    printf("non-sq: ");
+    for (t_size = best - 4; t_size < best + 4; t_size++ ) {
         clear_matrix(C);
         flush(FLUSH_AMT);
         result =  matrix_mult_uneven(C, A, B, t_size);
@@ -73,6 +74,5 @@ int main()
         if (VERBOSE == 0)
             printf("%lu,", result);
     }
-    printf("\n");
-    printf("best: %d %lu\n", best, low);
+    printf("best:%d-%lu\n", best, low);
 }
