@@ -11,9 +11,8 @@ static void flush(int dim)
 
 int main()
 {
-    clock_t result;
-    int i, j, t_size;
-    int size;
+    clock_t result, low;
+    int i, j, t_size, size, best;
 
     // Allocate memory for A 1024x1024
     size = ROW * sizeof(int *) + ROW * COL * sizeof(int);
@@ -45,13 +44,35 @@ int main()
     // A, B assign random value
     initial_matrix(A, ROW, COL, "A");
     initial_matrix(B, ROW, COL, "B");
-
+    
+    low = 0xFFFFFFFF;
+    best = 0;
     for (t_size = MIN_TILE; t_size <= MAX_TILE; t_size = t_size << 1) {
         clear_matrix(C);
         flush(FLUSH_AMT);
         result =  matrix_multiplication(C, A, B, t_size);
+        if (result < low){
+            low = result;
+	    best = t_size;
+	}	
         if (VERBOSE == 0)
             printf("%lu,", result);
     }
     printf("\n");
+    printf("best: %d %lu\n", best, low);
+
+//    for (t_size = best - 4; t_size <= best+4; t_size++ ) {
+      for (t_size = 4; t_size < 16; t_size++){
+        clear_matrix(C);
+        flush(FLUSH_AMT);
+        result =  matrix_mult_uneven(C, A, B, t_size);
+	if (result < low){
+            low = result;
+	    best = t_size;
+	}
+        if (VERBOSE == 0)
+            printf("%lu,", result);
+    }
+    printf("\n");
+    printf("best: %d %lu\n", best, low);
 }

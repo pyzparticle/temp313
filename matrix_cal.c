@@ -26,6 +26,7 @@ clock_t matrix_multiplication(int **C, int **A, int **B, int stride)
     int m = 0;
     int n = 0;
     int sum = 0;
+    int tempi, tempj;
 
     clock_t CPU_start_time = clock();
 
@@ -60,8 +61,13 @@ clock_t matrix_multiplication(int **C, int **A, int **B, int stride)
         printf("(Stride = %5d) CPU run time is: %10lu \n\n", stride, CPU_end_time - CPU_start_time);
     }
 
-    if(VERBOSE == 2) {
-        printf("matrix[%d][%d] = %d (To make sure the result is the same with different stride)\n\n", ROW, COL, C[ROW-1][COL-1]);
+    if(VERBOSE == 4) {
+        for(tempj = 0; tempj < COL; tempj++){
+	    for(tempi = 0; tempi < ROW; tempi++){
+                printf("%d ", C[tempi][tempj]);
+            }
+	    printf("\n");
+        }
     }
 
     if(VERBOSE == 1) {
@@ -80,7 +86,8 @@ void initial_matrix(int **A, int row, int col, char* name){
     for(i = 0; i < row; i ++){
         if(VERBOSE == 1) printf("Intialize line i = %d for matrix %s \n", i, name);
         for(j = 0; j < col; j++) {
-            A[i][j] = (rand() & 0xFF) + 1;
+           //A[i][j] = (rand() & 0xFF) + 1;
+	   A[i][j] = (rand() & 0xF) + 1 ; 
         }
     }
     if(VERBOSE == 4) {
@@ -156,4 +163,72 @@ clock_t matrix_transpose_multi(int **C, int **A, int **B, int stride)
     }
     
     return CPU_end_time - CPU_start_time;
+}
+
+static int str(int stride, int length, int current)
+{
+    if((current + stride) <= length - 1){
+        return stride;
+    }else{
+        if(!((current + stride - length - 1) % stride)){
+            return 0;
+	}else{
+            return stride - (current + stride - length);
+        }
+    }
+}
+
+clock_t matrix_mult_uneven(int **C, int **A, int **B, int stride)
+{
+    int i,j,k,l,m,n,sum;
+    int tempi, tempj;
+
+    clock_t CPU_start_time = clock();
+
+    if(VERBOSE == 2) {
+        printf("(Stride = %d) CPU start time is: %lu \n", stride, CPU_start_time);
+    }
+    
+    for(i = 0; i < ROW; i = i + str(stride, ROW, i)) {
+        for(j = 0; j < COL; j = j + str(stride, COL, j)) {
+            for(k = 0; k < COL; k = k + str(stride, COL, k)) {
+                // calculation for one tile
+            	for(l = i; l < i + str(stride, ROW, i); l++){
+                    for(m = j; m < j + str(stride, COL, j); m++) {
+                        sum = 0; 
+                        for(n = k; n < k + str(stride, COL, k); n++) {
+                            sum = sum + A[l][n] * B[n][m];
+                        }
+                        C[l][m] += sum;
+                    }
+                } 
+            }
+        }
+    }
+
+    clock_t CPU_end_time = clock();
+
+    if(VERBOSE == 2) {
+	printf("(Stride = %d) CPU end time is: %lu \n", stride, CPU_end_time);
+    }
+    
+    if(VERBOSE == 3){
+        printf("(Stride = %5d) CPU run time is: %10lu \n\n", stride, CPU_end_time - CPU_start_time);
+    }
+
+    if(VERBOSE == 4) {
+        for(tempj = 0; tempj < COL; tempj++){
+	    for(tempi = 0; tempi < ROW; tempi++){
+                printf("%d ", C[tempi][tempj]);
+            }
+	    printf("\n");
+        }
+    }
+
+    if(VERBOSE == 1) {
+        print_matrix(C, ROW, COL, "C");
+    }
+    
+    return CPU_end_time - CPU_start_time;
+
 }
