@@ -17,5 +17,6 @@
 void initial_matrix(int **A, int row, int col, char* name);
 void print_matrix(int **A, int row, int col, char* name);
 clock_t matrix_multiplication(int **C, int **A, int **B, int stride);
+clock_t matrix_transpose_multi(int **C, int **A, int **B, int stride);
 clock_t matrix_mult_uneven(int **C, int **A, int **B, int stride);
 void clear_matrix(int **C);

@@ -58,6 +58,10 @@ clock_t matrix_multiplication(int **C, int **A, int **B, int stride)
                 print_matrix(C, ROW, COL, "C");
         }
 
+        if(VERBOSE == 4) {
+                print_matrix(C, ROW, COL, "C");
+        }
+
         return CPU_end_time - CPU_start_time;
 }
 
@@ -94,13 +98,12 @@ void print_matrix(int *A[COL], int row, int col, char* name){
 //-----------
 clock_t matrix_transpose_multi(int **C, int **A, int **B, int stride)
 {
-        int i = 0;
-        int j = 0;
-        int k = 0;
-        int l = 0;
-        int m = 0;
-        int n = 0;
-        int sum = 0;
+        int i,j,k,l,m,n,sum,ti,tj,tk;
+        int **submat = malloc(stride * sizeof(int *) + stride * stride * sizeof(int));
+        int *off = &submat[stride]; 
+        for(i = 0; i < stride; i++, off+=stride){
+                submat[i] = off;
+        }
 
         clock_t CPU_start_time = clock();
 
@@ -112,11 +115,14 @@ clock_t matrix_transpose_multi(int **C, int **A, int **B, int stride)
                 for(j = 0; j < COL; j = j + stride) {
                         for(k = 0; k < COL; k = k + stride) {
                                 // calculation for one tile
+                                for(tj = j; tj < j + stride; tj++)
+                                        for(tk = k; tk < k + stride; tk++)
+                                                submat[tj-j][tk-k] = B[tk][tj];
                                 for(l = i; l < i + stride; l++) {
                                         for(m = j; m < j + stride; m++) {
                                                 sum = 0;
                                                 for(n = k; n < k+stride; n++) {
-                                                        sum = sum + A[l][n] * B[n][m];
+                                                        sum = sum + A[l][n] * submat[m-j][n-k];
                                                 }
                                                 C[l][m] += sum;
                                         }

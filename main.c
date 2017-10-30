@@ -75,4 +75,21 @@ int main()
                         printf("%lu,", result);
         }
         printf("best:%d-%lu\n", best, low);
+
+        low = 0xFFFFFFFF;
+        best = 0;
+        printf("transpose-B: ");
+        for (t_size = MIN_TILE; t_size <= MAX_TILE; t_size = t_size << 1) {
+                clear_matrix(C);
+                flush(FLUSH_AMT);
+                result =  matrix_transpose_multi(C, A, B, t_size);
+                if (result < low) {
+                        low = result;
+                        best = t_size;
+                }
+                if (VERBOSE == 0)
+                        printf("%lu,", result);
+        }
+        printf("best:%d-%lu\n", best, low);
+
 }
